@@ -55,9 +55,10 @@ required Android SDK, emulator, and Java Development Kit (JDK).
 
 > **Java version heads up:** This project uses Gradle 8.14.x, which cannot run
 > on Java 25. If a build reports `Unsupported class file major version 69`, it
-> is running with Java 25. Configure both your terminal and Android Studio to
-> use **JDK 21** instead. Do not upgrade Gradle independently, because its
-> version must remain compatible with the Android Gradle Plugin and Capacitor.
+> is running with Java 25. Install a full **Oracle JDK 21** (not a JRE); the
+> Android project selects it for the Gradle daemon. Do not upgrade Gradle
+> independently; its version must remain compatible with the Android Gradle
+> Plugin and Capacitor.
 
 During Android Studio's first-run setup, allow it to install the recommended
 SDK components. Then open **Tools > SDK Manager** and confirm that these are
@@ -397,28 +398,27 @@ npm run android:sync
 
 ### Gradle reports `Unsupported class file major version 69`
 
-Class-file version 69 means the build is running with Java 25. This project's
-Gradle version does not support Java 25, so use JDK 21 for Android builds.
-
-First, check the Java version selected by your terminal:
+Class-file version 69 means the Gradle build tried to run with Java 25. This
+project selects a full Oracle JDK 21 for its Gradle daemon. Install that JDK,
+then check that Gradle can find it from the `android` directory:
 
 ```powershell
-java -version
+cd android
+.\gradlew.bat --version
+cd ..
 ```
 
-If it reports Java 25, install or locate JDK 21 and select it in Android Studio
-under **Settings > Build, Execution, Deployment > Build Tools > Gradle > Gradle
-JDK**. For the current PowerShell session, you can also select JDK 21 directly:
+The output should say `Daemon JVM: Compatible with Java 21, Oracle`. Java 25
+may still appear as the *launcher* JVM; the daemon is what runs the build. If
+Gradle cannot find JDK 21, point this PowerShell session at its installation:
 
 ```powershell
-$env:JAVA_HOME = "C:\path\to\jdk-21"
+$env:JAVA_HOME = "C:\path\to\oracle-jdk-21"
 $env:Path = "$env:JAVA_HOME\bin;$env:Path"
-java -version
 npm run android:run
 ```
 
-Replace the example path with the actual JDK 21 installation directory. The
-version check must report Java 21 before rerunning the build.
+Replace the example path with the actual Oracle JDK 21 installation directory.
 
 ### A build fails after pulling new code
 
