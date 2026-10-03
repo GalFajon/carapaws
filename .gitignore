@@ -1,0 +1,24 @@
+# Local source reference documents (kept outside Git)
+/documentation/
+
+# Installed dependencies and generated web output
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/coverage/
+**/*.tsbuildinfo
+
+# Android/Gradle caches and build packages
+/.gradle-codex/
+**/.gradle/
+**/build/
+**/local.properties
+**/*.apk
+**/*.aab
+**/*.dex
+
+# Local settings and secrets
+**/.env
+**/.env.*
+**/*.jks
+**/*.keystore
