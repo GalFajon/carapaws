@@ -35,6 +35,11 @@ The updates view should show care events such as breakfast and walks, with times
 
 Sitters need an efficient way to post care updates. Every update must include a **photo** and may include explanatory text. Prototype the sitter flow around creating and sending these updates.
 
+### Sitter Profile
+- Basic Info: Name, Location, Contact
+- Experience: Showcased via a short "About me" bio and years of experience
+- Reference Points: @Gal ???
+- 
 ### Candidate stretch features
 
 Only implement these after the core flows are convincingly demonstrated:
