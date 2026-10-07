@@ -9,6 +9,18 @@ export interface User {
   initials: string;
 }
 
+export interface SitterProfile {
+  image?: string;
+  userId: string;
+  name: string;
+  location: string;
+  contact: string;
+  qualifications: string;
+  referencePoints: string;
+  reviews: { id: string; reviewer: string; rating: number; feedback: string }[];
+  references: { id: string; name: string; relationship: string; text: string }[];
+}
+
 export interface Dog {
   id: string;
   ownerId: string;

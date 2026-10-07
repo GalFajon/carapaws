@@ -1,6 +1,26 @@
 # CaraPaws UI
 React + Capacitor mobile UI for the CaraPaws app.
 
+## Sitter profile prototype
+
+Owners can open **View sitter profile** from a dog's **Latest sitter** card.
+Sitters can open **My profile** from the bottom navigation. The simple read-only
+form shows a centered demo portrait, name, location, contact, qualifications and
+reference points, followed by past client references. Profile editing and review
+submission are not implemented in this display prototype.
+
+All profile details, qualifications, reviews and references are fictional; the
+contact uses an example.com address. Reference points mean care experience and
+strengths. Ratings and feedback remain in the mock data but are not displayed.
+Empty, loading
+and load-error states are included. Profiles are fetched through the in-memory
+care service so an API can replace the mock data later.
+
+Only the sitter from the dog's most recently started booking is displayed;
+future bookings are excluded. Both demo dogs currently share the same sitter.
+The previous sitter archive and its mock entries have been removed. Past client
+references describe the displayed sitter, not a history of the dog's sitters.
+
 ## How the project works
 
 - **React and TypeScript** contain the application screens and behaviour.

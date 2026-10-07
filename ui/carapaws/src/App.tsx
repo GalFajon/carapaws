@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AppBar, Avatar, BottomNavigation, BottomNavigationAction, Box, Container, IconButton, Menu, MenuItem, Paper, Stack, Toolbar, Typography } from '@mui/material';
+import PersonRounded from '@mui/icons-material/PersonRounded';
+import { SitterProfileView } from './views/SitterProfileView';
 import LogoutRounded from '@mui/icons-material/LogoutRounded';
 import MoreHorizRounded from '@mui/icons-material/MoreHorizRounded';
 import ListRounded from '@mui/icons-material/ListRounded';
@@ -14,7 +16,7 @@ import { DogListView } from './views/DogListView';
 import { LoginView } from './views/LoginView';
 import { UpdatesView } from './views/UpdatesView';
 
-type Screen = 'list' | 'dog' | 'updates';
+type Screen = 'list' | 'dog' | 'updates' | 'sitter';
 
 function SplashScreen() {
   return <Stack role="status" aria-label="Opening CaraPaws" sx={{ minHeight: '100dvh', alignItems: 'center', justifyContent: 'center', p: 3, bgcolor: 'primary.light' }}>
@@ -23,6 +25,7 @@ function SplashScreen() {
 }
 
 function App() {
+  const [profileId, setProfileId] = useState(sitter.id);
   const [splash, setSplash] = useState(true);
   const [role, setRole] = useState<Role | null>(null);
   const [screen, setScreen] = useState<Screen>('list');
@@ -85,13 +88,15 @@ function App() {
     </Menu>
 
     <Container component="main" maxWidth="sm" sx={{ py: screen === 'updates' ? 0 : 2.5, height: screen === 'updates' ? 'calc(100dvh - 112px - env(safe-area-inset-bottom))' : undefined }}>
+      {screen === 'sitter' && <SitterProfileView key={profileId} userId={profileId} onBack={() => navigate(selectedDog ? 'dog' : 'list')} />}
       {screen === 'list' && <DogListView dogs={dogs} role={role} onSelect={selectDog} />}
-      {screen === 'dog' && selectedDog && <DogView dog={selectedDog} role={role} updates={visibleUpdates} onBack={() => navigate('list')} onUpdates={() => navigate('updates')} />}
+      {screen === 'dog' && selectedDog && <DogView dog={selectedDog} role={role} updates={visibleUpdates} onBack={() => navigate('list')} onUpdates={() => navigate('updates')} onSitter={(id) => { setProfileId(id); navigate('sitter'); }} />}
       {screen === 'updates' && selectedDog && <UpdatesView dog={selectedDog} role={role} updates={visibleUpdates} state={feedState} onBack={() => navigate('dog')} onRetry={() => void refresh()} onSend={sendUpdate} />}
     </Container>
 
     <Paper elevation={3} sx={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 600, pb: 'env(safe-area-inset-bottom)', zIndex: 10 }}>
       <BottomNavigation showLabels value={screen} onChange={(_event, value: Screen) => navigate(value)}>
+        {role === 'sitter' && <BottomNavigationAction label="My profile" value="sitter" icon={<PersonRounded />} onClick={() => setProfileId(sitter.id)} />}
         <BottomNavigationAction label="Dogs" value="list" icon={<ListRounded />} />
         {selectedDog && <BottomNavigationAction label={selectedDog.name} value="dog" icon={<PetsRounded />} />}
         {selectedDog && <BottomNavigationAction label="Updates" value="updates" icon={<PhotoLibraryRounded />} />}

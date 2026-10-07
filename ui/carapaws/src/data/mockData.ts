@@ -1,7 +1,20 @@
-import type { CareBooking, CareUpdate, Dog, User } from './types';
+import type { CareBooking, CareUpdate, Dog, SitterProfile, User } from './types';
 
 export const owner: User = { id: 'demo-owner', name: 'John Doe', role: 'owner', initials: 'JD' };
 export const sitter: User = { id: 'demo-sitter', name: 'Jane Doe', role: 'sitter', initials: 'JD' };
+
+export const sitterProfiles: SitterProfile[] = [{
+  image: '/images/sitter-avatar.svg',
+  userId: sitter.id, name: sitter.name, location: 'Dublin, Ireland',
+  contact: 'jane.sitter@example.com',
+  qualifications: 'Canine first aid course (demo)\nDog care and handling workshop (demo)',
+  referencePoints: 'Comfortable with daily feeding routines, gentle walks and nervous dogs. Regular photo updates to help owners feel connected.',
+  reviews: [
+    { id: 'review-1', reviewer: 'Demo owner A', rating: 5, feedback: 'Thoughtful care and lovely photo updates. Our dog settled in quickly.' },
+    { id: 'review-2', reviewer: 'Demo owner B', rating: 4, feedback: 'Followed the feeding routine carefully and kept us informed after walks.' },
+  ],
+  references: [{ id: 'reference-1', name: 'Demo reference A', relationship: 'Previous dog-care client', text: 'Jane cared for our dog during a weekend away and shared regular updates.' }],
+}];
 
 export const dog: Dog = {
   id: 'bailey', ownerId: owner.id, name: 'Bailey', image: '/images/bailey.jpg',
@@ -21,12 +34,6 @@ export const dogs: Dog[] = [dog, {
   emergency: { name: `${owner.name} - owner`, contact: 'Contact details are a demo placeholder.' },
   loves: ['Fetch', 'Gentle walks'], dislikes: ['Thunder'],
 }];
-
-export const pastCarers = [
-  { id: 'past-carer-1', dogId: 'bailey', label: 'Past carer 1', initials: 'C1', lastCare: 'June 2026' },
-  { id: 'past-carer-2', dogId: 'bailey', label: 'Past carer 2', initials: 'C2', lastCare: 'March 2026' },
-  { id: 'past-carer-3', dogId: 'luna', label: 'Past carer 1', initials: 'C1', lastCare: 'May 2026' },
-];
 
 const today = new Date();
 const at = (hour: number, minute: number, dayOffset = 0) => {
