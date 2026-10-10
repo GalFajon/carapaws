@@ -12,13 +12,29 @@ export interface User {
 export interface SitterProfile {
   image?: string;
   userId: string;
+  username: string;
   name: string;
   location: string;
+  available: boolean;
+  services: string[];
   contact: string;
   qualifications: string;
   referencePoints: string;
   reviews: { id: string; reviewer: string; rating: number; feedback: string }[];
   references: { id: string; name: string; relationship: string; text: string }[];
+}
+
+export interface CareAssignment {
+  id: string;
+  dogId: string;
+  sitterId: string;
+}
+
+export interface SitterRequest {
+  id: string;
+  dogId: string;
+  sitterId: string;
+  status: 'pending' | 'accepted' | 'declined';
 }
 
 export interface Dog {
@@ -36,19 +52,11 @@ export interface Dog {
   dislikes: string[];
 }
 
-export interface CareBooking {
-  id: string;
-  dogId: string;
-  sitterId: string;
-  startsAt: string;
-  endsAt: string;
-}
-
 /** Photo-led care event; the photo is required and the text is optional. */
 export interface CareUpdate {
   id: string;
   dogId: string;
-  bookingId: string;
+  assignmentId: string;
   authorId: string;
   timestamp: string;
   image: string;

@@ -3,9 +3,10 @@ React + Capacitor mobile UI for the CaraPaws app.
 
 ## Sitter profile prototype
 
-Owners can open **View sitter profile** from a dog's **Latest sitter** card.
+Owners can open **View sitter profile** from a dog's **Your sitter** card or the
+**Find sitter** directory.
 Sitters can open **My profile** from the bottom navigation. The simple read-only
-form shows a centered demo portrait, name, location, contact, qualifications and
+form shows a centered initials avatar, name, location, contact, qualifications and
 reference points, followed by past client references. Profile editing and review
 submission are not implemented in this display prototype.
 
@@ -16,10 +17,38 @@ Empty, loading
 and load-error states are included. Profiles are fetched through the in-memory
 care service so an API can replace the mock data later.
 
-Only the sitter from the dog's most recently started booking is displayed;
-future bookings are excluded. Both demo dogs currently share the same sitter.
-The previous sitter archive and its mock entries have been removed. Past client
+The two seeded dogs start with Jane Doe as their accepted sitter. Past client
 references describe the displayed sitter, not a history of the dog's sitters.
+
+## Add a dog demo
+
+The owner dog list has an **Add dog** form for a photo, profile details, feeding
+routine, medical information, emergency contact, and likes and dislikes. A photo
+is optional in this demo; a generic paw placeholder appears when none is chosen.
+The form checks the required identity and emergency fields and accepts photos up
+to 5 MB. New dogs are kept only in React state for the current app session; they
+disappear on reload and are not written to the mock fixtures or an API. They have
+no sitter or updates until a sitter accepts a request. The sitter view shows
+only dogs assigned to the currently selected demo sitter.
+The owner dog profile includes an **Edit** button as a placeholder; editing is
+not implemented yet, and tapping it explains that no details will change.
+
+## Find and add a sitter demo
+
+From a dog's profile, owners can open **Find sitter**, filter demo profiles by
+name or @username, location, care type, and availability, then send one
+**Add sitter** request. Each sitter has a unique lowercase username in the
+mock directory; the profile is still linked internally by its stable user ID.
+The chosen sitter sees a pending request on their dog list and can accept or
+decline it. Acceptance adds the dog to that sitter's list and lets them post
+photo updates. Declining frees the owner to try another sitter. Use the header
+demo menu to switch among sitter accounts and try both responses.
+
+This is an in-memory connection flow with no dates, prices, payments, or
+booking confirmation. Requests, assignments, availability, and newly added
+dogs reset when the app reloads. The database schema has not yet been adapted
+to this simpler request/assignment model; future persistence should enforce a
+case-insensitive unique sitter username.
 
 ## How the project works
 
