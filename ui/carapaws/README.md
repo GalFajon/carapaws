@@ -51,7 +51,7 @@ Description separators use dashes. Screen navigation resets document scroll.
 ## Updates-first navigation
 
 Owners land directly in their current dog's updates. The **…** menu on the updates header opens **My dogs** and **Refresh updates**.
-The account menu contains only account and demo controls. Dog editing is reached
+The account menu contains profile, account switching and sign-out actions. Dog editing is reached
 through the dog profile. The dog list has a clickable **Make current** pill beside each dog; the selected
 dog shows a filled **Current** pill. Selection changes in place without an alert. Opening another dog
 is a temporary visit; choosing Make current dog saves the default in localStorage

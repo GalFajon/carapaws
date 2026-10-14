@@ -183,7 +183,6 @@ function App() {
 
     <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}>
       {role === 'sitter' && <MenuItem onClick={() => { setMenuAnchor(null); openSitterProfile(activeSitterId); }}>My profile</MenuItem>}
-      <MenuItem disabled>Demo controls</MenuItem>
       {role === 'sitter' && <MenuItem onClick={() => { setMenuAnchor(null); signIn('owner'); }}>Switch to owner</MenuItem>}
       {demoSitters.map((demoSitter) => <MenuItem key={demoSitter.id} selected={role === 'sitter' && activeSitterId === demoSitter.id} onClick={() => switchToSitter(demoSitter.id)}>Switch to @{sitterProfiles.find((profile) => profile.userId === demoSitter.id)?.username}</MenuItem>)}
       <MenuItem onClick={signOut}><LogoutRounded fontSize="small" sx={{ mr: 1 }} />Sign out</MenuItem>
