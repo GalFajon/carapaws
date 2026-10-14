@@ -4,7 +4,8 @@ import AddPhotoAlternateRounded from '@mui/icons-material/AddPhotoAlternateRound
 import PetsRounded from '@mui/icons-material/PetsRounded';
 import type { Dog } from '../data/types';
 
-type DogDetails = Omit<Dog, 'id' | 'ownerId' | 'image' | 'loves' | 'dislikes'> & {
+type DogDetails = Omit<Dog, 'id' | 'ownerId' | 'image' | 'loves' | 'dislikes' | 'gender'> & {
+  gender: Dog['gender'] | '';
   loves: string;
   dislikes: string;
 };
@@ -15,9 +16,9 @@ const initialDetails: DogDetails = {
 };
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
-export function DogEntryDialog({ ownerId, onClose, onAdd }: { ownerId: string; onClose: () => void; onAdd: (dog: Dog) => void }) {
-  const [details, setDetails] = useState<DogDetails>(initialDetails);
-  const [image, setImage] = useState('');
+export function DogEntryDialog({ ownerId, dog, onClose, onAdd }: { ownerId: string; dog?: Dog; onClose: () => void; onAdd: (dog: Dog) => void }) {
+  const [details, setDetails] = useState<DogDetails>(dog ? { ...dog, loves: dog.loves.join(', '), dislikes: dog.dislikes.join(', ') } : initialDetails);
+  const [image, setImage] = useState(dog?.image ?? '');
   const [imageError, setImageError] = useState('');
 
   function update<K extends keyof DogDetails>(field: K, value: DogDetails[K]) {
@@ -36,9 +37,10 @@ export function DogEntryDialog({ ownerId, onClose, onAdd }: { ownerId: string; o
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (details.gender !== 'Female' && details.gender !== 'Male') return;
     const split = (value: string) => value.split(',').map((item) => item.trim()).filter(Boolean);
     onAdd({
-      id: crypto.randomUUID(), ownerId,
+      id: dog?.id ?? crypto.randomUUID(), ownerId,
       name: details.name.trim(), breed: details.breed.trim(), age: details.age.trim(), gender: details.gender,
       image: image || '/images/dog-placeholder.svg',
       feeding: details.feeding.trim() || 'Not provided yet',
@@ -49,13 +51,13 @@ export function DogEntryDialog({ ownerId, onClose, onAdd }: { ownerId: string; o
   }
 
   return <Dialog open onClose={onClose} fullWidth maxWidth="sm" aria-labelledby="add-dog-title" slotProps={{ paper: { sx: { maxHeight: '92dvh' } } }}>
-    <DialogTitle id="add-dog-title" variant="h5">Add your dog</DialogTitle>
+    <DialogTitle id="add-dog-title" variant="h5">{dog ? 'Edit dog profile' : 'Add your dog'}</DialogTitle>
     <DialogContent>
       <Box component="form" id="add-dog-form" onSubmit={submit} sx={{ pt: 1 }}>
         <Stack spacing={2}>
           <Typography variant="body2" color="text.secondary">Demo only — details stay in this app session and disappear when you reload.</Typography>
           <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-            <Avatar src={image || undefined} sx={{ width: 72, height: 72, bgcolor: 'background.paper', color: 'primary.dark', border: 1, borderColor: 'divider' }}><PetsRounded /></Avatar>
+            <Avatar src={image || undefined} sx={{ width: 72, height: 72, bgcolor: 'background.paper', color: 'primary.dark' }}><PetsRounded /></Avatar>
             <Button component="label" variant="outlined" startIcon={<AddPhotoAlternateRounded />}>Choose photo<input hidden type="file" accept="image/*" onChange={(event) => { chooseImage(event.target.files?.[0]); event.target.value = ''; }} /></Button>
           </Stack>
           {imageError && <Alert severity="error">{imageError}</Alert>}
@@ -63,8 +65,8 @@ export function DogEntryDialog({ ownerId, onClose, onAdd }: { ownerId: string; o
           <TextField label="Breed" value={details.breed} onChange={(event) => update('breed', event.target.value)} required fullWidth slotProps={{ htmlInput: { maxLength: 80 } }} />
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <TextField label="Age" placeholder="e.g. 4 years" value={details.age} onChange={(event) => update('age', event.target.value)} required fullWidth slotProps={{ htmlInput: { maxLength: 30 } }} />
-            <TextField select label="Gender" value={details.gender} onChange={(event) => update('gender', event.target.value)} required fullWidth>
-              <MenuItem value="Female">Female</MenuItem><MenuItem value="Male">Male</MenuItem><MenuItem value="Other">Other</MenuItem><MenuItem value="Not specified">Prefer not to say</MenuItem>
+            <TextField select label="Gender" value={details.gender} onChange={(event) => { const value = event.target.value; if (value === 'Female' || value === 'Male') update('gender', value); }} required fullWidth>
+              <MenuItem value="Female">Female</MenuItem><MenuItem value="Male">Male</MenuItem>
             </TextField>
           </Stack>
           <TextField label="Feeding routine" placeholder="Times, portions, food" value={details.feeding} onChange={(event) => update('feeding', event.target.value)} multiline minRows={2} fullWidth />
@@ -77,6 +79,6 @@ export function DogEntryDialog({ ownerId, onClose, onAdd }: { ownerId: string; o
         </Stack>
       </Box>
     </DialogContent>
-    <DialogActions sx={{ px: 3, pb: 2.5, gap: 1 }}><Button onClick={onClose}>Cancel</Button><Button type="submit" form="add-dog-form" variant="contained">Add dog</Button></DialogActions>
+    <DialogActions><Button onClick={onClose}>Cancel</Button><Button type="submit" form="add-dog-form" variant="contained">{dog ? 'Save changes' : 'Add dog'}</Button></DialogActions>
   </Dialog>;
 }

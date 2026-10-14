@@ -1,6 +1,7 @@
 import type { CareAssignment, CareUpdate, Dog, SitterProfile, User } from './types';
 
 export const owner: User = { id: 'demo-owner', name: 'John Doe', role: 'owner', initials: 'JD' };
+export const owners: (User & { contact: string })[] = [{ ...owner, contact: 'john.owner@example.com' }, { id: 'demo-owner-sam', name: 'Sam Taylor', role: 'owner', initials: 'ST', contact: 'sam.owner@example.com' }];
 export const sitter: User = { id: 'demo-sitter', name: 'Jane Doe', role: 'sitter', initials: 'JD' };
 export const demoSitters: User[] = [sitter,
   { id: 'demo-sitter-aisling', name: 'Aisling Murphy', role: 'sitter', initials: 'AM' },
@@ -14,23 +15,19 @@ export const sitterProfiles: SitterProfile[] = [{
   contact: 'jane.sitter@example.com',
   qualifications: 'Canine first aid course (demo)\nDog care and handling workshop (demo)',
   referencePoints: 'Comfortable with daily feeding routines, gentle walks and nervous dogs. Regular photo updates to help owners feel connected.',
-  reviews: [
-    { id: 'review-1', reviewer: 'Demo owner A', rating: 5, feedback: 'Thoughtful care and lovely photo updates. Our dog settled in quickly.' },
-    { id: 'review-2', reviewer: 'Demo owner B', rating: 4, feedback: 'Followed the feeding routine carefully and kept us informed after walks.' },
-  ],
   references: [{ id: 'reference-1', name: 'Demo reference A', relationship: 'Previous dog-care client', text: 'Jane cared for our dog during a weekend away and shared regular updates.' }],
 }, {
   userId: 'demo-sitter-aisling', username: 'aislingcares', name: 'Aisling Murphy', location: 'Dublin', available: true,
   services: ['Day care', 'Home sitting'], contact: 'aisling@example.com',
   qualifications: 'Experience caring for senior dogs (demo)',
   referencePoints: 'Patient with slower routines and dogs who need a calm setting.',
-  reviews: [], references: [],
+  references: [],
 }, {
   userId: 'demo-sitter-mark', username: 'markwalks', name: 'Mark Byrne', location: 'Galway', available: false,
   services: ['Dog walking', 'Home sitting'], contact: 'mark@example.com',
   qualifications: 'Canine first aid course (demo)',
   referencePoints: 'Enjoys active walks and keeps owners updated with photos.',
-  reviews: [], references: [],
+  references: [],
 }];
 
 // Handles identify sitters in the demo directory; the eventual database needs a UNIQUE constraint.
@@ -57,7 +54,10 @@ export const dogs: Dog[] = [dog, {
   loves: ['Fetch', 'Gentle walks'], dislikes: ['Thunder'],
 }];
 
+dogs.push({ ...dog, id: 'milo', ownerId: 'demo-owner-sam', name: 'Milo', image: '/images/dog-placeholder.svg', emergency: { name: 'Sam Taylor', contact: 'Contact details are a demo placeholder.' } });
+
 export const assignments: CareAssignment[] = [
+  { id: 'milo-assignment', dogId: 'milo', sitterId: sitter.id },
   { id: 'bailey-assignment', dogId: dog.id, sitterId: sitter.id },
   { id: 'luna-assignment', dogId: 'luna', sitterId: sitter.id },
 ];

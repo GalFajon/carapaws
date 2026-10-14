@@ -1,12 +1,30 @@
-import { useEffect, useRef } from 'react';
-import { Avatar, Box, Chip, Divider, IconButton, Stack, Typography } from '@mui/material';
-import ArrowBackRounded from '@mui/icons-material/ArrowBackRounded';
+import type { OwnerContact } from '../data/types';
+import { useEffect, useRef, useState } from 'react';
+import { Alert, Avatar, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton, Menu, MenuItem, Stack, Tooltip, Typography } from '@mui/material';
+import { ProfileLink } from '../components/ProfileLink';
+import MoreHorizRounded from '@mui/icons-material/MoreHorizRounded';
+import ContactPhoneRounded from '@mui/icons-material/ContactPhoneRounded';
 import RefreshRounded from '@mui/icons-material/RefreshRounded';
 import { FeedSkeleton, UpdateCard } from '../components/Shared';
 import { UpdateComposer } from '../components/UpdateComposer';
+import { getInitials } from '../data/profile';
 import type { CareUpdate, Dog, FeedState, NewUpdate, Role } from '../data/types';
 
-export function UpdatesView({ dog, role, sitterName, updates, state, onBack, onRetry, onSend }: { dog: Dog; role: Role; sitterName?: string; updates: CareUpdate[]; state: FeedState; onBack: () => void; onRetry: () => void; onSend: (update: NewUpdate) => Promise<void> }) {
+function formatUpdateDay(timestamp: string) {
+  return new Date(timestamp).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+export function UpdatesView({ owners, dog, role, sitterName, updates, state, onBack, onRetry, onSend, onDogProfile, onPerson }: { owners: OwnerContact[]; onDogProfile: () => void; onPerson: () => void; dog: Dog; role: Role; sitterName?: string; updates: CareUpdate[]; state: FeedState; onBack: () => void; onRetry: () => void; onSend: (update: NewUpdate) => Promise<void> }) {
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [ownerOpen, setOwnerOpen] = useState(false);
+  const dogOwner = owners.find((person) => person.id === dog.ownerId);
+  const isOwner = role === 'owner';
+  const personName = isOwner ? sitterName : dogOwner?.name;
+  const personRole = isOwner ? 'Sitter' : 'Owner';
+  const personInitials = isOwner ? (sitterName ? getInitials(sitterName) : undefined) : dogOwner?.initials;
+  const contact = dog.emergency.contact.trim();
+  const contactHref = /^[+\d][\d ()-]{5,}$/.test(contact) ? `tel:${contact.replace(/[ ()-]/g, '')}` : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) ? `mailto:${contact}` : undefined;
   const messages = [...updates].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   const conversationRef = useRef<HTMLDivElement>(null);
 
@@ -15,26 +33,44 @@ export function UpdatesView({ dog, role, sitterName, updates, state, onBack, onR
   }, [dog.id, messages.length, state]);
 
   return <Stack sx={{ height: '100%', minHeight: 0 }}>
-    <Stack direction="row" spacing={1} sx={{ alignItems: 'center', pt: 1, pb: 1 }}>
-      <IconButton aria-label="Back" onClick={onBack}><ArrowBackRounded /></IconButton>
-      <Avatar sx={{ bgcolor: 'background.paper', color: 'primary.dark', border: 1, borderColor: 'divider' }}>{sitterName ? sitterName.split(' ').map((part) => part[0]).slice(0, 2).join('') : dog.name[0]}</Avatar>
-      <Box sx={{ flex: 1 }}><Typography component="h1" variant="h6">{dog.name}’s updates</Typography><Typography variant="caption" color="text.secondary">{sitterName ? `From ${sitterName}` : 'No sitter added yet'}</Typography></Box>
-      <IconButton aria-label="Refresh updates" onClick={onRetry}><RefreshRounded /></IconButton>
-    </Stack>
+    <Box sx={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr) auto', alignItems: 'center', gap: 0.75, py: 1, flexShrink: 0 }}>
+      <ProfileLink heading name={`${dog.name} - Dog`} label={`View ${dog.name}'s profile`} image={dog.image} onClick={onDogProfile} />
+      <ProfileLink
+        name={personName ? `${personName} - ${personRole}` : personRole}
+        label={`View ${personRole.toLowerCase()} profile`}
+        initials={personInitials}
+        disabled={isOwner && !sitterName}
+        onClick={isOwner ? onPerson : () => setOwnerOpen(true)}
+      />
+      <Stack direction="row" spacing={0.75}>
+        {role === 'sitter' && <Tooltip title="Emergency contact"><IconButton aria-label="Emergency contact" onClick={() => setContactOpen(true)}><ContactPhoneRounded /></IconButton></Tooltip>}
+        <IconButton id="updates-menu-button" aria-label="Updates options" aria-haspopup="menu" aria-controls={menuAnchor ? 'updates-menu' : undefined} aria-expanded={Boolean(menuAnchor)} onClick={(event) => setMenuAnchor(event.currentTarget)}><MoreHorizRounded /></IconButton>
+      </Stack>
+      <Menu id="updates-menu" anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)} slotProps={{ list: { 'aria-labelledby': 'updates-menu-button' } }}>
+        <MenuItem onClick={() => { setMenuAnchor(null); onBack(); }}>{role === 'owner' ? 'My dogs' : 'Dogs in my care'}</MenuItem>
+        {role === 'sitter' && <MenuItem onClick={() => { setMenuAnchor(null); setContactOpen(true); }}><ContactPhoneRounded fontSize="small" sx={{ mr: 1 }} />Emergency contact</MenuItem>}
+        <MenuItem disabled={state === 'loading'} onClick={() => { setMenuAnchor(null); onRetry(); }}><RefreshRounded fontSize="small" sx={{ mr: 1 }} />Refresh updates</MenuItem>
+      </Menu>
+    </Box>
+    <Dialog open={contactOpen} onClose={() => setContactOpen(false)} fullWidth maxWidth="xs" aria-labelledby="emergency-title">
+      <DialogTitle id="emergency-title">{dog.name}’s emergency contact</DialogTitle><DialogContent><Typography sx={{ fontWeight: 700 }}>{dog.emergency.name || 'No contact name provided'}</Typography><Typography>{contact || 'No contact details provided'}</Typography>{!contactHref && <Alert severity="info" sx={{ mt: 2 }}>No callable number or email is available for this demo contact.</Alert>}</DialogContent><DialogActions><Button onClick={() => setContactOpen(false)}>Close</Button>{contactHref && <Button href={contactHref} variant="contained">{contactHref.startsWith('tel:') ? 'Call contact' : 'Email contact'}</Button>}</DialogActions>
+    </Dialog>
+    <Dialog open={ownerOpen} onClose={() => setOwnerOpen(false)} fullWidth maxWidth="xs" aria-labelledby="owner-title"><DialogTitle id="owner-title">Owner profile</DialogTitle><DialogContent><Stack spacing={1}><Avatar>{dogOwner?.initials}</Avatar><Typography variant="h6">{dogOwner?.name ?? 'Owner details unavailable'}</Typography><Typography color="text.secondary">Caring for {dog.name}</Typography><Typography>{dogOwner?.contact ?? 'Contact details unavailable'}</Typography></Stack></DialogContent><DialogActions><Button onClick={() => setOwnerOpen(false)}>Close</Button></DialogActions></Dialog>
     <Divider />
 
     <Box ref={conversationRef} sx={{ flex: 1, minHeight: 0, overflowY: 'auto', py: 2 }}>
+      {state === 'error' && <Alert severity="error" action={<Button onClick={onRetry}>Retry</Button>}>Updates could not be loaded. Please try again.</Alert>}
       {state === 'loading' && <FeedSkeleton dogName={dog.name} />}
-      {state === 'ready' && messages.length === 0 && <Stack sx={{ minHeight: '100%', alignItems: 'center', justifyContent: 'center', textAlign: 'center', px: 2 }}><Typography variant="h6">No updates yet</Typography><Typography variant="body2" color="text.secondary">Photos and care updates for {dog.name} will appear here once a sitter is assigned.</Typography></Stack>}
-      {state === 'ready' && <Stack spacing={2.5} sx={{ minHeight: '100%', justifyContent: 'flex-end' }}>
+      {state === 'ready' && messages.length === 0 && <Stack sx={{ minHeight: '100%', alignItems: 'center', justifyContent: 'center', textAlign: 'center', px: 2 }}><Typography variant="h6">No updates yet</Typography><Typography variant="body2" color="text.secondary">Photos and care updates for {dog.name} will appear here when their sitter shares them.</Typography></Stack>}
+      {state === 'ready' && messages.length > 0 && <Stack spacing={2.5} sx={{ minHeight: '100%', justifyContent: 'flex-end' }}>
         {messages.map((update, index) => {
-          const day = new Date(update.timestamp).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' });
-          const previousDay = index > 0 ? new Date(messages[index - 1].timestamp).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+          const day = formatUpdateDay(update.timestamp);
+          const previousDay = index > 0 ? formatUpdateDay(messages[index - 1].timestamp) : '';
           const showDay = day !== previousDay;
-          return <Box key={update.id}>{showDay && <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}><Chip label={day} size="small" variant="outlined" /></Box>}<UpdateCard update={update} dogName={dog.name} outgoing={role === 'sitter'} /></Box>;
+          return <Box key={update.id}>{showDay && <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}><Chip label={day} variant="outlined" sx={{ bgcolor: 'action.hover', color: 'text.secondary' }} /></Box>}<UpdateCard update={update} dogName={dog.name} outgoing={role === 'sitter'} /></Box>;
         })}
       </Stack>}
     </Box>
-    {role === 'sitter' && <Box sx={{ pb: 1 }}><UpdateComposer key={dog.id} dog={dog} onSend={onSend} /></Box>}
+    {role === 'sitter' && <Box sx={{ pb: 1, flexShrink: 0 }}><UpdateComposer key={dog.id} dog={dog} onSend={onSend} /></Box>}
   </Stack>;
 }

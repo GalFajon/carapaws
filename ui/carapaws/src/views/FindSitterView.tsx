@@ -1,6 +1,7 @@
+import { getInitials } from '../data/profile';
 import { useState } from 'react';
-import { Alert, Avatar, Box, Button, Chip, FormControlLabel, IconButton, MenuItem, Paper, Stack, Switch, TextField, Typography } from '@mui/material';
-import ArrowBackRounded from '@mui/icons-material/ArrowBackRounded';
+import { Alert, Avatar, Box, Button, Chip, FormControlLabel, MenuItem, Paper, Stack, Switch, TextField, Typography } from '@mui/material';
+import { BackButton } from '../components/BackButton';
 import type { CareAssignment, Dog, SitterProfile, SitterRequest } from '../data/types';
 
 export function FindSitterView({ dog, profiles, assignment, requests, onBack, onViewProfile, onRequest }: {
@@ -26,8 +27,8 @@ export function FindSitterView({ dog, profiles, assignment, requests, onBack, on
     (!query || `${profile.name} @${profile.username}`.toLowerCase().includes(query.trim().toLowerCase()))
   );
 
-  return <Stack spacing={2.5}>
-    <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}><IconButton aria-label="Back to dog profile" onClick={onBack}><ArrowBackRounded /></IconButton><Box><Typography component="h1" variant="h5">Find a sitter</Typography><Typography variant="body2" color="text.secondary">For {dog.name}</Typography></Box></Stack>
+  return <Stack spacing={2}>
+    <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}><BackButton label="Back to dog profile" onClick={onBack} /><Box><Typography component="h1" variant="h5">Find a sitter</Typography><Typography variant="body2" color="text.secondary">For {dog.name}</Typography></Box></Stack>
     <Typography variant="body2" color="text.secondary">Browse demo sitter profiles and add one to {dog.name}’s care circle. They can accept or decline your request.</Typography>
     {assignment && <Alert severity="info">{dog.name} already has a sitter. You can browse profiles, but this demo supports one active sitter at a time.</Alert>}
     {pending && <Alert severity="info">Request pending with @{profiles.find((profile) => profile.userId === pending.sitterId)?.username}. Switch to that sitter’s demo view to respond.</Alert>}
@@ -42,13 +43,13 @@ export function FindSitterView({ dog, profiles, assignment, requests, onBack, on
     <Typography variant="body2" color="text.secondary">{results.length} {results.length === 1 ? 'sitter' : 'sitters'} shown</Typography>
     {results.length === 0 && <Alert severity="info">No sitters match these filters. Try another location or care type.</Alert>}
     {results.map((profile) => {
-      const initials = profile.name.split(' ').map((part) => part[0]).slice(0, 2).join('');
+      const initials = getInitials(profile.name);
       const request = requests.find((item) => item.sitterId === profile.userId);
       const actionLabel = assignment?.sitterId === profile.userId ? 'Current sitter' : request?.status === 'declined' ? 'Declined' : request?.status === 'accepted' ? 'Added' : request?.status === 'pending' ? 'Pending' : 'Add sitter';
       return <Paper key={profile.userId} variant="outlined" sx={{ p: 2 }}><Stack spacing={1.5}>
-        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-          <Avatar sx={{ width: 52, height: 52, bgcolor: 'background.paper', color: 'primary.dark', border: 1, borderColor: 'primary.main', fontWeight: 800 }}>{initials}</Avatar>
-          <Box sx={{ flex: 1, minWidth: 0 }}><Typography variant="h6">{profile.name}</Typography><Typography variant="body2" color="primary.dark" sx={{ fontWeight: 800 }}>@{profile.username}</Typography></Box>
+        <Stack direction="row" useFlexGap spacing={1.5} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+          <Avatar src={profile.image} alt={profile.name} sx={{ width: 52, height: 52, bgcolor: 'background.paper', color: 'primary.dark', fontWeight: 800 }}>{initials}</Avatar>
+          <Box sx={{ flex: 1, minWidth: 0 }}><Typography variant="h6">{profile.name}</Typography><Typography variant="body2" color="text.primary" sx={{ fontWeight: 800 }}>@{profile.username}</Typography></Box>
           <Chip label={profile.available ? 'Available' : 'Unavailable'} variant="outlined" size="small" color={profile.available ? 'success' : 'default'} />
         </Stack>
         <Typography variant="body2" color="text.secondary">{profile.location} - {profile.services.join(' - ')}</Typography>

@@ -38,8 +38,8 @@ export function UpdateComposer({ dog, onSend }: { dog: Dog; onSend: (update: New
 
   return <Paper variant="outlined" sx={{ p: 1.5, flexShrink: 0 }}>
     <Stack spacing={1}>
-      {image && <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}><Avatar src={image} alt="Selected update photo" variant="rounded" /><Typography variant="caption" sx={{ flex: 1 }}>Photo attached</Typography><IconButton size="small" aria-label="Remove photo" onClick={() => setImage('')}><CloseRounded fontSize="small" /></IconButton></Stack>}
-      <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+      {image && <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}><Avatar src={image} alt="Selected update photo" /><Typography variant="caption" sx={{ flex: 1 }}>Photo attached</Typography><IconButton size="small" aria-label="Remove photo" onClick={() => setImage('')}><CloseRounded fontSize="small" /></IconButton></Stack>}
+      <Stack direction="row" useFlexGap spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
         <Select size="small" value={type} onChange={(event) => setType(event.target.value as UpdateType)} inputProps={{ 'aria-label': 'Update type' }} sx={{ minWidth: 100 }}>{kinds.map((kind) => <MenuItem key={kind} value={kind}>{kind}</MenuItem>)}</Select>
         <input ref={inputRef} type="file" accept="image/*" hidden onChange={(event) => { chooseFile(event.target.files?.[0]); event.target.value = ''; }} />
         <IconButton aria-label="Attach photo" onClick={() => inputRef.current?.click()}><AddPhotoAlternateRounded /></IconButton>

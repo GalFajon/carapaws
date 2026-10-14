@@ -1,23 +1,103 @@
 # CaraPaws UI
 React + Capacitor mobile UI for the CaraPaws app.
 
+## Signup prototypes and dog removal
+
+The welcome/splash screen asks the user to choose owner or sitter. This opens a
+role-specific login screen with email/password fields and a Log in button. Below
+it, “New to CaraPaws?” and Sign up open the matching signup flow. Back from signup
+returns to that login; the login's back arrow returns to the welcome screen.
+Signing out returns to the active role's login. Login fields contain dummy demo
+values; submitting uses the existing prototype session without sending or storing
+credentials. The former timed splash and four-button entry screen are removed. Both collect
+name, email and location using sample details only; there is no authentication,
+password collection, account creation, verification email or server storage.
+Owners then complete the existing dog form and land directly on that first dog's
+empty updates screen. Sitters choose a username, write a bio, enter years of
+experience and optional qualifications, then land on an empty care list. Their
+profile is available from My profile and the demo sitter directory for this session.
+Usernames are normalized to lowercase and checked against seeded and session-created
+sitters (3–24 characters, starting with a letter, then letters, digits or underscores).
+This demonstrates uniqueness locally; a future backend must enforce it globally.
+Signup details and dogs reset on reload. Cancel/back does not create an account.
+
+**Remove dog from my list** appears only at the bottom of the dog profile. A
+confirmation names the dog and focuses the safe Keep action. Owner removal drops
+the dog and its care assignments/requests from the session, selects a remaining
+current dog where possible, and returns to the list (or its add-first-dog state).
+Sitter removal only removes that sitter's assignment; the owner's dog remains.
+These are local prototype actions, not permanent backend deletions. Removal is
+not available in list rows, updates menus or account menus.
+
+## Shared UI conventions
+
+The theme keeps a standard MUI appearance: neutral 1px borders on cards,
+accordions, photos and secondary controls; filled primary buttons; and standard
+semantic error/alert colours. Inputs and selects share their size, padding,
+12px corners and focus treatment across login, signup, editing and search.
+Profile pictures remain rounded squares. Profile links share a compact component
+with a fixed 48px height and a small View profile caption in both chat views.
+Back arrows share `BackButton`, while name initials and owner contact types are
+defined once for the views that need them. Long names truncate
+visually but remain available through the control's accessible label/title.
+Current and Make current badges have equal widths. Signup is full-width.
+
+Dog gender is Female or Male in the model and forms. Profile entry points say
+View profile. Sitter owner groups and requests share accordion styling and can
+be expanded/collapsed independently. Owner groups begin expanded; requests begin
+collapsed with an empty state. The owner account list remains flat.
+Description separators use dashes. Screen navigation resets document scroll.
+
+## Updates-first navigation
+
+Owners land directly in their current dog's updates. The **…** menu on the updates header opens **My dogs** and **Refresh updates**.
+The account menu contains only account and demo controls. Dog editing is reached
+through the dog profile. The dog list has a clickable **Make current** pill beside each dog; the selected
+dog shows a filled **Current** pill. Selection changes in place without an alert. Opening another dog
+is a temporary visit; choosing Make current dog saves the default in localStorage
+for the demo owner. Without a valid saved choice, the first owned dog is used.
+If browser storage is unavailable, the preference lasts only for the session.
+A saved preference for a session-only dog falls back to the first dog on reload.
+
+Both lists have one search field matching dog or owner names, ignoring case and
+surrounding spaces, with no filter settings. Owners see a flat list. Sitters
+start with assigned dogs grouped by owner, with 10 dogs per page and labelled
+Previous/Next controls. Search covers all assigned dogs before pagination and
+resets to page one. Owner headings repeat with “continued” if a group crosses a
+page boundary. Search and page are retained when visiting updates and returning;
+switching demo accounts resets them. Pagination currently runs on local mock
+data; a future API should apply search before paging and return matching totals.
+
+Sitters start with assigned dogs grouped by owner. Both roles open updates when
+selecting a dog, tap the dog photo/name for its profile, and use the labelled
+person avatar for the sitter/owner profile. Profile back returns to updates;
+the updates menu returns to the dog list. The bottom navigation is removed.
+Emergency contact is an icon at the right of the sitter chat header and an
+option in its **…** menu. Both open the same contact dialog with call/email actions only
+when valid contact details exist. Seeded emergency contacts are non-callable
+placeholders. A second fictional owner and Milo demonstrate separate sitter
+groups; the signed-in owner cannot see that owner's dog.
+
+Updates remain photo-required care events, with optional text, rather than
+two-way messages. Feed loading, empty and retry states remain available. Dog
+rows show the latest update preview; unread tracking is not implemented.
+
 ## Sitter profile prototype
 
 Owners can open **View sitter profile** from a dog's **Your sitter** card or the
 **Find sitter** directory.
-Sitters can open **My profile** from the bottom navigation. The simple read-only
+Sitters can open **My profile** from the top-right menu. The simple read-only
 form shows a centered initials avatar, name, location, contact, qualifications and
-reference points, followed by past client references. Profile editing and review
-submission are not implemented in this display prototype.
+reference points, followed by past client references. Profile editing is not implemented in this display prototype.
 
-All profile details, qualifications, reviews and references are fictional; the
+All profile details, qualifications and references are fictional; the
 contact uses an example.com address. Reference points mean care experience and
-strengths. Ratings and feedback remain in the mock data but are not displayed.
+strengths. Reviews and ratings are outside the current prototype scope.
 Empty, loading
 and load-error states are included. Profiles are fetched through the in-memory
 care service so an API can replace the mock data later.
 
-The two seeded dogs start with Jane Doe as their accepted sitter. Past client
+The three seeded dogs across two fictional owners start with Jane Doe as their accepted sitter. Past client
 references describe the displayed sitter, not a history of the dog's sitters.
 
 ## Add a dog demo
@@ -30,8 +110,8 @@ to 5 MB. New dogs are kept only in React state for the current app session; they
 disappear on reload and are not written to the mock fixtures or an API. They have
 no sitter or updates until a sitter accepts a request. The sitter view shows
 only dogs assigned to the currently selected demo sitter.
-The owner dog profile includes an **Edit** button as a placeholder; editing is
-not implemented yet, and tapping it explains that no details will change.
+Owners can edit dog details from the dog profile. Changes stay
+in the current session and reset on reload.
 
 ## Find and add a sitter demo
 

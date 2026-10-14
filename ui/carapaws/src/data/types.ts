@@ -1,6 +1,6 @@
 export type Role = 'owner' | 'sitter';
 export type UpdateType = 'Walk' | 'Meal' | 'Play' | 'Rest' | 'General';
-export type FeedState = 'ready' | 'loading';
+export type FeedState = 'ready' | 'loading' | 'error';
 
 export interface User {
   id: string;
@@ -8,6 +8,8 @@ export interface User {
   role: Role;
   initials: string;
 }
+
+export type OwnerContact = Pick<User, 'id' | 'name' | 'initials'> & { contact: string };
 
 export interface SitterProfile {
   image?: string;
@@ -20,7 +22,6 @@ export interface SitterProfile {
   contact: string;
   qualifications: string;
   referencePoints: string;
-  reviews: { id: string; reviewer: string; rating: number; feedback: string }[];
   references: { id: string; name: string; relationship: string; text: string }[];
 }
 
@@ -44,7 +45,7 @@ export interface Dog {
   image: string;
   breed: string;
   age: string;
-  gender: string;
+  gender: 'Female' | 'Male';
   feeding: string;
   medical: string;
   emergency: { name: string; contact: string };
