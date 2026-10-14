@@ -8,6 +8,7 @@ import ContactPhoneRounded from '@mui/icons-material/ContactPhoneRounded';
 import HealthAndSafetyRounded from '@mui/icons-material/HealthAndSafetyRounded';
 import RestaurantRounded from '@mui/icons-material/RestaurantRounded';
 import type { CareUpdate, Dog, Role, SitterProfile } from '../data/types';
+import { getLatestUpdatesByDog } from '../data/updates';
 
 function DetailRow({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return <Box sx={{ display: 'flex', gap: 1.5, py: 1.5, borderBottom: 1, borderColor: 'divider', '&:last-child': { borderBottom: 0 } }}>
@@ -19,7 +20,7 @@ function DetailRow({ icon, title, children }: { icon: React.ReactNode; title: st
 export function DogView({ owners, dog, role, updates, assignedSitter, pendingSitter, onBack, onUpdates, onFindSitter, onSitter, onEdit, onRemove }: { owners: OwnerContact[]; dog: Dog; role: Role; updates: CareUpdate[]; assignedSitter?: SitterProfile; pendingSitter?: SitterProfile; onBack: () => void; onUpdates: () => void; onFindSitter: () => void; onSitter: (id: string) => void; onEdit: () => void; onRemove: () => void }) {
   const [removing, setRemoving] = useState(false);
   const owner = owners.find((person) => person.id === dog.ownerId);
-  const latest = updates[0];
+  const latest = getLatestUpdatesByDog(updates).get(dog.id);
   return <Stack spacing={2}>
     <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}><BackButton label="Back to updates" onClick={onBack} /><Box sx={{ flex: 1 }}><Typography variant="h5" component="h1">{dog.name}</Typography></Box>{role === 'owner' && <Button variant="outlined" size="small" startIcon={<EditRounded />} onClick={onEdit}>Edit</Button>}</Stack>
 

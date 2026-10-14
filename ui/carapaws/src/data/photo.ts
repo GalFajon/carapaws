@@ -15,6 +15,7 @@ export function readPhoto(
   const reader = new FileReader();
   reader.onload = () => {
     if (typeof reader.result === 'string') onLoad(reader.result);
+    else onError('read');
   };
   reader.onerror = () => onError('read');
   reader.readAsDataURL(file);

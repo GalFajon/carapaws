@@ -52,9 +52,11 @@ export const dogs: Dog[] = [dog, {
   medical: 'No known medical needs in this demo.',
   emergency: { name: `${owner.name} - owner`, contact: 'Contact details are a demo placeholder.' },
   loves: ['Fetch', 'Gentle walks'], dislikes: ['Thunder'],
+}, {
+  ...dog, id: 'milo', ownerId: 'demo-owner-sam', name: 'Milo',
+  image: '/images/dog-placeholder.svg',
+  emergency: { name: 'Sam Taylor', contact: 'Contact details are a demo placeholder.' },
 }];
-
-dogs.push({ ...dog, id: 'milo', ownerId: 'demo-owner-sam', name: 'Milo', image: '/images/dog-placeholder.svg', emergency: { name: 'Sam Taylor', contact: 'Contact details are a demo placeholder.' } });
 
 export const assignments: CareAssignment[] = [
   { id: 'milo-assignment', dogId: 'milo', sitterId: sitter.id },

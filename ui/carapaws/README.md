@@ -80,7 +80,9 @@ groups; the signed-in owner cannot see that owner's dog.
 
 Updates remain photo-required care events, with optional text, rather than
 two-way messages. Feed loading, empty and retry states remain available. Dog
-rows show the latest update preview; unread tracking is not implemented.
+rows show the latest update preview by timestamp; unread tracking is not implemented.
+The feed resolves sitter names from the current session profiles, so updates
+from newly created demo sitters display their names without changing mock fixtures.
 
 ## Sitter profile prototype
 

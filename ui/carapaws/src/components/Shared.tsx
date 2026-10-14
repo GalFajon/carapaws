@@ -7,7 +7,6 @@ import RestaurantRounded from '@mui/icons-material/RestaurantRounded';
 import SportsTennisRounded from '@mui/icons-material/SportsTennisRounded';
 import BedtimeRounded from '@mui/icons-material/BedtimeRounded';
 import FavoriteBorderRounded from '@mui/icons-material/FavoriteBorderRounded';
-import { sitterProfiles } from '../data/mockData';
 import type { CareUpdate } from '../data/types';
 
 import { visualTokens } from '../visualTokens';
@@ -32,15 +31,14 @@ export function Photo({ src, alt, height = 260, position = 'center' }: { src: st
   return <Box component="img" src={src} alt={alt} onError={() => setFailedSrc(src)} sx={{ ...imageFrameSx, width: '100%', height, display: 'block', objectFit: 'cover', objectPosition: position }} />;
 }
 
-export function UpdateCard({ update, dogName, outgoing = false }: { update: CareUpdate; dogName: string; outgoing?: boolean }) {
+export function UpdateCard({ update, dogName, authorName, outgoing = false }: { update: CareUpdate; dogName: string; authorName?: string; outgoing?: boolean }) {
   const Icon = typeIcons[update.type];
   const date = new Date(update.timestamp);
-  const author = sitterProfiles.find((profile) => profile.userId === update.authorId);
-  const initials = author ? getInitials(author.name) : '?';
+  const initials = authorName ? getInitials(authorName) : '?';
   return <Box component="article" sx={{ display: 'flex', flexDirection: outgoing ? 'row-reverse' : 'row', alignItems: 'flex-start', gap: 1 }}>
     <Avatar sx={{ bgcolor: 'background.paper', color: 'primary.dark', width: 30, height: 30, fontSize: 11, mt: 1 }}>{initials}</Avatar>
     <Box sx={{ minWidth: 0, maxWidth: '82%' }}>
-      <Typography variant="caption" color="text.secondary" sx={{ ml: 1.25 }}>{author?.name ?? 'Sitter'}</Typography>
+      <Typography variant="caption" color="text.secondary" sx={{ ml: 1.25 }}>{authorName ?? 'Sitter'}</Typography>
       <Paper variant="outlined" sx={{ overflow: 'hidden', borderRadius: `${visualTokens.imageRadius}px`, bgcolor: 'background.paper' }}>
         <Photo src={update.image} alt={`${update.type} update from ${dogName}’s sitter`} height={170} />
         <Box sx={{ px: 1.5, pt: 1, pb: 1.25 }}>

@@ -8,13 +8,13 @@ import RefreshRounded from '@mui/icons-material/RefreshRounded';
 import { FeedSkeleton, UpdateCard } from '../components/Shared';
 import { UpdateComposer } from '../components/UpdateComposer';
 import { getInitials } from '../data/profile';
-import type { CareUpdate, Dog, FeedState, NewUpdate, Role } from '../data/types';
+import type { CareUpdate, Dog, FeedState, NewUpdate, Role, SitterProfile } from '../data/types';
 
 function formatUpdateDay(timestamp: string) {
   return new Date(timestamp).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-export function UpdatesView({ owners, dog, role, sitterName, updates, state, onBack, onRetry, onSend, onDogProfile, onPerson }: { owners: OwnerContact[]; onDogProfile: () => void; onPerson: () => void; dog: Dog; role: Role; sitterName?: string; updates: CareUpdate[]; state: FeedState; onBack: () => void; onRetry: () => void; onSend: (update: NewUpdate) => Promise<void> }) {
+export function UpdatesView({ owners, sitters, dog, role, sitterName, updates, state, onBack, onRetry, onSend, onDogProfile, onPerson }: { owners: OwnerContact[]; sitters: SitterProfile[]; onDogProfile: () => void; onPerson: () => void; dog: Dog; role: Role; sitterName?: string; updates: CareUpdate[]; state: FeedState; onBack: () => void; onRetry: () => void; onSend: (update: NewUpdate) => Promise<void> }) {
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
   const [contactOpen, setContactOpen] = useState(false);
   const [ownerOpen, setOwnerOpen] = useState(false);
@@ -26,6 +26,7 @@ export function UpdatesView({ owners, dog, role, sitterName, updates, state, onB
   const contact = dog.emergency.contact.trim();
   const contactHref = /^[+\d][\d ()-]{5,}$/.test(contact) ? `tel:${contact.replace(/[ ()-]/g, '')}` : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) ? `mailto:${contact}` : undefined;
   const messages = [...updates].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+  const authorNames = new Map(sitters.map((profile) => [profile.userId, profile.name]));
   const conversationRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -67,7 +68,7 @@ export function UpdatesView({ owners, dog, role, sitterName, updates, state, onB
           const day = formatUpdateDay(update.timestamp);
           const previousDay = index > 0 ? formatUpdateDay(messages[index - 1].timestamp) : '';
           const showDay = day !== previousDay;
-          return <Box key={update.id}>{showDay && <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}><Chip label={day} variant="outlined" sx={{ bgcolor: 'action.hover', color: 'text.secondary' }} /></Box>}<UpdateCard update={update} dogName={dog.name} outgoing={role === 'sitter'} /></Box>;
+          return <Box key={update.id}>{showDay && <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}><Chip label={day} variant="outlined" sx={{ bgcolor: 'action.hover', color: 'text.secondary' }} /></Box>}<UpdateCard update={update} dogName={dog.name} authorName={authorNames.get(update.authorId)} outgoing={role === 'sitter'} /></Box>;
         })}
       </Stack>}
     </Box>
