@@ -3,6 +3,7 @@ import { Alert, Avatar, Box, Button, Dialog, DialogActions, DialogContent, Dialo
 import AddPhotoAlternateRounded from '@mui/icons-material/AddPhotoAlternateRounded';
 import PetsRounded from '@mui/icons-material/PetsRounded';
 import type { Dog } from '../data/types';
+import { readPhoto } from '../data/photo';
 
 type DogDetails = Omit<Dog, 'id' | 'ownerId' | 'image' | 'loves' | 'dislikes' | 'gender'> & {
   gender: Dog['gender'] | '';
@@ -14,7 +15,11 @@ const initialDetails: DogDetails = {
   name: '', breed: '', age: '', gender: '', feeding: '', medical: '',
   emergency: { name: '', contact: '' }, loves: '', dislikes: '',
 };
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const photoErrors = {
+  type: 'Choose an image file.',
+  size: 'Choose a photo smaller than 5 MB.',
+  read: 'That photo could not be opened.',
+};
 
 export function DogEntryDialog({ ownerId, dog, onClose, onAdd }: { ownerId: string; dog?: Dog; onClose: () => void; onAdd: (dog: Dog) => void }) {
   const [details, setDetails] = useState<DogDetails>(dog ? { ...dog, loves: dog.loves.join(', '), dislikes: dog.dislikes.join(', ') } : initialDetails);
@@ -26,13 +31,10 @@ export function DogEntryDialog({ ownerId, dog, onClose, onAdd }: { ownerId: stri
   }
 
   function chooseImage(file?: File) {
-    if (!file) return;
-    if (!file.type.startsWith('image/')) { setImageError('Choose an image file.'); return; }
-    if (file.size > MAX_IMAGE_BYTES) { setImageError('Choose a photo smaller than 5 MB.'); return; }
-    const reader = new FileReader();
-    reader.onload = () => { if (typeof reader.result === 'string') { setImage(reader.result); setImageError(''); } };
-    reader.onerror = () => setImageError('That photo could not be opened.');
-    reader.readAsDataURL(file);
+    readPhoto(file,
+      (image) => { setImage(image); setImageError(''); },
+      (error) => setImageError(photoErrors[error]),
+    );
   }
 
   function submit(event: React.FormEvent<HTMLFormElement>) {

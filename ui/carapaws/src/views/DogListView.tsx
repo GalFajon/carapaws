@@ -6,6 +6,7 @@ import AddRounded from '@mui/icons-material/AddRounded';
 import ChevronRightRounded from '@mui/icons-material/ChevronRightRounded';
 import { DogEntryDialog } from '../components/DogEntryDialog';
 import { getDogListPage } from '../data/dogList';
+import { getLatestUpdatesByDog } from '../data/updates';
 import type { CareUpdate, Dog, Role, SitterRequest } from '../data/types';
 
 export function DogListView({ owners, browse, onBrowse, onMakeCurrent, dogs, updates, currentDogId, role, ownerId, incoming, onSelect, onAdd, onRespond }: { owners: OwnerContact[]; browse: { query: string; page: number }; onBrowse: (browse: { query: string; page: number }) => void; onMakeCurrent: (dogId: string) => void; dogs: Dog[]; updates: CareUpdate[]; currentDogId?: string; role: Role; ownerId: string; incoming: { request: SitterRequest; dog: Dog }[]; onSelect: (dogId: string) => void; onAdd: (dog: Dog) => void; onRespond: (requestId: string, decision: 'accepted' | 'declined') => void }) {
@@ -21,6 +22,7 @@ export function DogListView({ owners, browse, onBrowse, onMakeCurrent, dogs, upd
 
   const results = getDogListPage(dogs, owners, browse.query, browse.page, role === 'sitter');
   const groups = role === 'sitter' ? results.groups : [{ id: ownerId, name: '', dogs: results.dogs, continued: false }];
+  const latestUpdates = getLatestUpdatesByDog(updates);
 
   function changePage(page: number) {
     onBrowse({ ...browse, page });
@@ -56,10 +58,9 @@ export function DogListView({ owners, browse, onBrowse, onMakeCurrent, dogs, upd
     {role === 'owner' && dogs.length === 0 && <Button variant="contained" onClick={() => setAdding(true)}>Add your first dog</Button>}
     {results.total === 0 && dogs.length > 0 && <Typography>No dogs match your search. Try another dog or owner name.</Typography>}
     {groups.filter((group) => group.dogs.length > 0).map((group) => {
-      const dogRows = <>
-      <List disablePadding>
+      const dogRows = <List disablePadding>
         {group.dogs.map((dog) => {
-          const latest = updates.filter((update) => update.dogId === dog.id).sort((a, b) => b.timestamp.localeCompare(a.timestamp))[0];
+          const latest = latestUpdates.get(dog.id);
           return <ListItem key={dog.id} disablePadding sx={{ gap: 0.5, flexWrap: 'nowrap', '& + &': { borderTop: 1, borderColor: 'divider' } }}><ListItemButton onClick={() => onSelect(dog.id)} sx={{ py: 1.5, minWidth: 0, flex: 1 }}>
             <ListItemAvatar sx={{ minWidth: 48 }}><Avatar src={dog.image} alt={dog.name} sx={{ width: 40, height: 40 }} /></ListItemAvatar>
             <ListItemText primary={dog.name} secondary={latest ? latest.text || `${latest.type} photo update` : 'No updates yet'} slotProps={{ secondary: { noWrap: true } }} sx={{ minWidth: 0 }} />
@@ -78,8 +79,7 @@ export function DogListView({ owners, browse, onBrowse, onMakeCurrent, dogs, upd
           />}
           </ListItem>;
         })}
-      </List>
-      </>;
+      </List>;
       return role === 'sitter' ? <Accordion key={`${group.id}:${results.page}:${browse.query}`} defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreRounded />} id={`owner-${group.id}-heading`} aria-controls={`owner-${group.id}-content`}>
           <Typography component="span" variant="h6">{group.name}{group.continued ? ' (continued)' : ''}</Typography>

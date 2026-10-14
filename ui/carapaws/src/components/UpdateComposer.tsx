@@ -5,9 +5,14 @@ import CloseRounded from '@mui/icons-material/CloseRounded';
 import SendRounded from '@mui/icons-material/SendRounded';
 import { samplePhotos } from '../data/mockData';
 import type { Dog, NewUpdate, UpdateType } from '../data/types';
+import { readPhoto } from '../data/photo';
 
 const kinds: UpdateType[] = ['Walk', 'Meal', 'Play', 'Rest', 'General'];
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const photoErrors = {
+  type: 'Please choose an image file.',
+  size: 'Please choose a photo smaller than 5 MB.',
+  read: 'That photo could not be opened.',
+};
 
 export function UpdateComposer({ dog, onSend }: { dog: Dog; onSend: (update: NewUpdate) => Promise<void> }) {
   const [type, setType] = useState<UpdateType>('Walk');
@@ -19,13 +24,10 @@ export function UpdateComposer({ dog, onSend }: { dog: Dog; onSend: (update: New
   const inputRef = useRef<HTMLInputElement>(null);
 
   function chooseFile(file?: File) {
-    if (!file) return;
-    if (!file.type.startsWith('image/')) { setError('Please choose an image file.'); return; }
-    if (file.size > MAX_IMAGE_BYTES) { setError('Please choose a photo smaller than 5 MB.'); return; }
-    const reader = new FileReader();
-    reader.onload = () => { if (typeof reader.result === 'string') { setImage(reader.result); setError(''); } };
-    reader.onerror = () => setError('That photo could not be opened.');
-    reader.readAsDataURL(file);
+    readPhoto(file,
+      (image) => { setImage(image); setError(''); },
+      (error) => setError(photoErrors[error]),
+    );
   }
 
   async function send() {
