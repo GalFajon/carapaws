@@ -25,7 +25,7 @@ export function SitterProfileView({ userId, initialProfile, onBack }: { initialP
     { label: 'Location', value: profile.location },
     { label: 'Contact', value: profile.contact },
     { label: 'Qualifications', value: profile.qualifications },
-    { label: 'Reference points', value: profile.referencePoints },
+    { label: 'Experience summary', value: profile.experienceSummary },
   ] : [];
 
   return <Stack spacing={2}>

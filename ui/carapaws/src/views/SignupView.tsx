@@ -21,13 +21,12 @@ export function SignupView({ role, usernames, onBack, onComplete }: { role: Role
   const user: User = { id, name: name.trim(), role, initials: name.trim().split(/\s+/).map((part) => part[0]).slice(0, 2).join('').toUpperCase() };
   function complete(dog?: Dog) {
     onComplete({ user, contact: contact.trim(), location: location.trim(), dog,
-      profile: role === 'sitter' ? { userId: id, name: user.name, username: handle, location: location.trim(), contact: contact.trim(), available: true, services: ['Dog care'], qualifications: qualifications.trim(), referencePoints: `${years} years of experience. ${bio.trim()}`, references: [] } : undefined });
+      profile: role === 'sitter' ? { userId: id, name: user.name, username: handle, location: location.trim(), contact: contact.trim(), available: true, services: ['Dog care'], qualifications: qualifications.trim(), experienceSummary: `${years} years of experience. ${bio.trim()}`, references: [] } : undefined });
   }
   return <Container maxWidth="sm" sx={{ py: 3 }}><Stack spacing={3}>
     <Brand />
     <Button onClick={step ? () => setStep(0) : onBack} sx={{ alignSelf: 'flex-start', minHeight: 48 }}>Back</Button>
     <Typography component="h1" variant="h5">{role === 'owner' ? 'Join as a dog owner' : 'Join as a dog sitter'}</Typography>
-    <Typography color="text.secondary">Try signing up with sample details. This prototype does not create a real account; details reset when you reload.</Typography>
     <Stepper activeStep={Math.min(step, 1)} alternativeLabel>{['Your profile', role === 'owner' ? 'Your first dog' : 'Sitter details'].map((label) => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}</Stepper>
     {step === 0 && <Stack component="form" spacing={2} onSubmit={(event) => { event.preventDefault(); if (name.trim() && location.trim()) setStep(1); }}>
       <TextField label="Full name" autoComplete="name" required value={name} onChange={(event) => setName(event.target.value)} />

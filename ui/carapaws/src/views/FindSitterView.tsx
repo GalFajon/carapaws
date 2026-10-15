@@ -53,7 +53,7 @@ export function FindSitterView({ dog, profiles, assignment, requests, onBack, on
           <Chip label={profile.available ? 'Available' : 'Unavailable'} variant="outlined" size="small" color={profile.available ? 'success' : 'default'} />
         </Stack>
         <Typography variant="body2" color="text.secondary">{profile.location} - {profile.services.join(' - ')}</Typography>
-        <Typography variant="body2">{profile.referencePoints}</Typography>
+        <Typography variant="body2">{profile.experienceSummary}</Typography>
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
           <Button variant="outlined" onClick={() => onViewProfile(profile.userId)}>View profile</Button>
           <Button variant="contained" onClick={() => onRequest(profile.userId)} disabled={!profile.available || Boolean(assignment) || Boolean(pending) || Boolean(request)}>{actionLabel}</Button>

@@ -90,10 +90,10 @@ Owners can open **View sitter profile** from a dog's **Your sitter** card or the
 **Find sitter** directory.
 Sitters can open **My profile** from the top-right menu. The simple read-only
 form shows a centered initials avatar, name, location, contact, qualifications and
-reference points, followed by past client references. Profile editing is not implemented in this display prototype.
+experience summary, followed by past client references. Profile editing is not implemented in this display prototype.
 
 All profile details, qualifications and references are fictional; the
-contact uses an example.com address. Reference points mean care experience and
+contact uses an example.com address. Experience summary mean care experience and
 strengths. Reviews and ratings are outside the current prototype scope.
 Empty, loading
 and load-error states are included. Profiles are fetched through the in-memory

@@ -21,7 +21,7 @@ export interface SitterProfile {
   services: string[];
   contact: string;
   qualifications: string;
-  referencePoints: string;
+  experienceSummary: string;
   references: { id: string; name: string; relationship: string; text: string }[];
 }
 

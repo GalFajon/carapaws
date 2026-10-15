@@ -57,7 +57,6 @@ export function DogEntryDialog({ ownerId, dog, onClose, onAdd }: { ownerId: stri
     <DialogContent>
       <Box component="form" id="add-dog-form" onSubmit={submit} sx={{ pt: 1 }}>
         <Stack spacing={2}>
-          <Typography variant="body2" color="text.secondary">Demo only — details stay in this app session and disappear when you reload.</Typography>
           <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
             <Avatar src={image || undefined} sx={{ width: 72, height: 72, bgcolor: 'background.paper', color: 'primary.dark' }}><PetsRounded /></Avatar>
             <Button component="label" variant="outlined" startIcon={<AddPhotoAlternateRounded />}>Choose photo<input hidden type="file" accept="image/*" onChange={(event) => { chooseImage(event.target.files?.[0]); event.target.value = ''; }} /></Button>

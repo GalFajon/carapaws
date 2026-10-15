@@ -14,7 +14,6 @@ export function LoginView({ role, onSignIn, onSignUp, onBack }: { role: Role; on
       <Stack component="form" spacing={2} onSubmit={(event) => { event.preventDefault(); onSignIn(); }}>
         <TextField label="Email address" type="email" name="email" autoComplete="off" required fullWidth defaultValue={role === 'owner' ? 'john.owner@example.com' : 'jane.sitter@example.com'} />
         <TextField label="Password" type="password" name="password" autoComplete="off" required fullWidth defaultValue="demo-only" />
-        <Typography variant="body2" color="text.secondary">Prototype: use the sample details shown. No real login or password is needed.</Typography>
         <Button type="submit" variant="contained" size="large" fullWidth>Log in</Button>
       </Stack>
       <Stack sx={{ alignItems: 'center' }}>

@@ -14,19 +14,19 @@ export const sitterProfiles: SitterProfile[] = [{
   services: ['Dog walking', 'Day care'],
   contact: 'jane.sitter@example.com',
   qualifications: 'Canine first aid course (demo)\nDog care and handling workshop (demo)',
-  referencePoints: 'Comfortable with daily feeding routines, gentle walks and nervous dogs. Regular photo updates to help owners feel connected.',
+  experienceSummary: 'Comfortable with daily feeding routines, gentle walks and nervous dogs. Regular photo updates to help owners feel connected.',
   references: [{ id: 'reference-1', name: 'Demo reference A', relationship: 'Previous dog-care client', text: 'Jane cared for our dog during a weekend away and shared regular updates.' }],
 }, {
   userId: 'demo-sitter-aisling', username: 'aislingcares', name: 'Aisling Murphy', location: 'Dublin', available: true,
   services: ['Day care', 'Home sitting'], contact: 'aisling@example.com',
   qualifications: 'Experience caring for senior dogs (demo)',
-  referencePoints: 'Patient with slower routines and dogs who need a calm setting.',
+  experienceSummary: 'Patient with slower routines and dogs who need a calm setting.',
   references: [],
 }, {
   userId: 'demo-sitter-mark', username: 'markwalks', name: 'Mark Byrne', location: 'Galway', available: false,
   services: ['Dog walking', 'Home sitting'], contact: 'mark@example.com',
   qualifications: 'Canine first aid course (demo)',
-  referencePoints: 'Enjoys active walks and keeps owners updated with photos.',
+  experienceSummary: 'Enjoys active walks and keeps owners updated with photos.',
   references: [],
 }];
 
