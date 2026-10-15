@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, Container, Stack, Step, StepLabel, Stepper, TextField, Typography } from '@mui/material';
 import { Brand } from '../components/Shared';
+import { BackButton } from '../components/BackButton';
 import { DogEntryDialog } from '../components/DogEntryDialog';
 import type { Dog, Role, SitterProfile, User } from '../data/types';
 
@@ -25,7 +26,7 @@ export function SignupView({ role, usernames, onBack, onComplete }: { role: Role
   }
   return <Container maxWidth="sm" sx={{ py: 3 }}><Stack spacing={3}>
     <Brand />
-    <Button onClick={step ? () => setStep(0) : onBack} sx={{ alignSelf: 'flex-start', minHeight: 48 }}>Back</Button>
+    <BackButton label={step ? 'Back to your profile' : 'Back to login'} onClick={step ? () => setStep(0) : onBack} sx={{ alignSelf: 'flex-start' }} />
     <Typography component="h1" variant="h5">{role === 'owner' ? 'Join as a dog owner' : 'Join as a dog sitter'}</Typography>
     <Stepper activeStep={Math.min(step, 1)} alternativeLabel>{['Your profile', role === 'owner' ? 'Your first dog' : 'Sitter details'].map((label) => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}</Stepper>
     {step === 0 && <Stack component="form" spacing={2} onSubmit={(event) => { event.preventDefault(); if (name.trim() && location.trim()) setStep(1); }}>
