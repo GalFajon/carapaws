@@ -6,6 +6,7 @@ CREATE TABLE app_users (
     role text NOT NULL CHECK (role IN ('owner', 'sitter')),
     display_name text NOT NULL CHECK (btrim(display_name) <> ''),
     email text NOT NULL CHECK (btrim(email) <> '' AND email = btrim(email)),
+    password_hash text NOT NULL,
     location text NOT NULL DEFAULT '',
     photo_id uuid,
     UNIQUE (id, role)

@@ -1,13 +1,150 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["partialIndexes"]
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+model app_users {
+  id                                                 String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  role                                               String
+  display_name                                       String
+  email                                              String
+  password_hash                                      String
+  location                                           String           @default("")
+  photo_id                                           String?          @db.Uuid
+  media_objects_app_users_photo_idTomedia_objects    media_objects?   @relation("app_users_photo_idTomedia_objects", fields: [photo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dogs                                               dogs[]
+  media_objects_media_objects_uploaded_byToapp_users media_objects[]  @relation("media_objects_uploaded_byToapp_users")
+  sitter_profiles                                    sitter_profiles?
+
+  @@unique([id, role])
+  @@index([photo_id], map: "app_users_photo_idx")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model care_arrangements {
+  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  dog_id          String          @unique(map: "one_open_arrangement_per_dog", where: raw("(status = ANY (ARRAY['pending'::text, 'active'::text]))")) @db.Uuid
+  sitter_id       String          @db.Uuid
+  status          String          @default("pending")
+  dogs            dogs            @relation(fields: [dog_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sitter_profiles sitter_profiles @relation(fields: [sitter_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  care_updates    care_updates[]
+
+  @@index([dog_id], map: "care_arrangements_dog_idx")
+  @@index([sitter_id, status], map: "care_arrangements_sitter_idx")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model care_updates {
+  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  arrangement_id    String            @db.Uuid
+  photo_id          String            @db.Uuid
+  type              String
+  body              String?
+  occurred_at       DateTime          @default(now()) @db.Timestamptz(6)
+  care_arrangements care_arrangements @relation(fields: [arrangement_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  media_objects     media_objects     @relation(fields: [photo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([photo_id], map: "care_updates_photo_idx")
+  @@index([arrangement_id, occurred_at(sort: Desc), id(sort: Desc)], map: "care_updates_timeline_idx")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model dog_preferences {
+  dog_id String @db.Uuid
+  kind   String
+  label  String
+  dogs   dogs   @relation(fields: [dog_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([dog_id, kind, label])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model dogs {
+  id                   String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  owner_id             String              @db.Uuid
+  owner_role           String?             @default("owner")
+  name                 String
+  photo_id             String?             @db.Uuid
+  breed                String              @default("")
+  age_label            String              @default("")
+  gender               String
+  feeding_instructions String              @default("")
+  medical_information  String              @default("")
+  care_arrangements    care_arrangements?
+  dog_preferences      dog_preferences[]
+  app_users            app_users?          @relation(fields: [owner_id, owner_role], references: [id, role], onDelete: NoAction, onUpdate: NoAction)
+  media_objects        media_objects?      @relation(fields: [photo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  emergency_contacts   emergency_contacts?
+
+  @@index([owner_id], map: "dogs_owner_idx")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model emergency_contacts {
+  dog_id          String @id @db.Uuid
+  name            String
+  contact_details String
+  dogs            dogs   @relation(fields: [dog_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model media_objects {
+  id                                             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  uploaded_by                                    String         @db.Uuid
+  bucket                                         String
+  object_key                                     String
+  content_type                                   String
+  byte_size                                      BigInt
+  app_users_app_users_photo_idTomedia_objects    app_users[]    @relation("app_users_photo_idTomedia_objects")
+  care_updates                                   care_updates[]
+  dogs                                           dogs[]
+  app_users_media_objects_uploaded_byToapp_users app_users      @relation("media_objects_uploaded_byToapp_users", fields: [uploaded_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([bucket, object_key])
+  @@index([uploaded_by], map: "media_objects_uploader_idx")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model sitter_profiles {
+  user_id            String              @id @db.Uuid
+  user_role          String?             @default("sitter")
+  username           String              @unique
+  qualifications     String              @default("")
+  experience_summary String              @default("")
+  available          Boolean             @default(true)
+  care_arrangements  care_arrangements[]
+  app_users          app_users?          @relation(fields: [user_id, user_role], references: [id, role], onDelete: NoAction, onUpdate: NoAction)
+  sitter_references  sitter_references[]
+  sitter_services    sitter_services[]
+
+  @@unique([user_id, user_role])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model sitter_references {
+  id                 String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sitter_id          String          @db.Uuid
+  name               String
+  relationship_label String          @default("")
+  reference_text     String          @default("")
+  sitter_profiles    sitter_profiles @relation(fields: [sitter_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([sitter_id], map: "sitter_references_sitter_idx")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model sitter_services {
+  sitter_id       String          @db.Uuid
+  service_name    String
+  sitter_profiles sitter_profiles @relation(fields: [sitter_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([sitter_id, service_name])
 }
