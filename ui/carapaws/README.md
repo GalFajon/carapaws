@@ -50,6 +50,15 @@ Description separators use dashes. Screen navigation resets document scroll.
 
 ## Updates-first navigation
 
+Sitters can use **Update** beside any assigned dog to open the same photo
+and optional-message composer used in chat, without leaving the list. A photo
+is required (uploaded or selected from the demo samples). Sending uses the same
+in-memory care service and updates that dog's chat and list preview immediately.
+The dialog closes after success and shows a confirmation; failed sends retain
+the draft for retry. Cancel discards the draft, and dismissal is disabled while
+sending. Search and pagination stay unchanged. Updates remain demo session data
+and reset on reload; no message is delivered to an external recipient.
+
 Owners land directly in their current dog's updates. The **…** menu on the updates header opens **My dogs** and **Refresh updates**.
 The account menu contains profile, account switching and sign-out actions. Dog editing is reached
 through the dog profile. The dog list has a clickable **Make current** pill beside each dog; the selected

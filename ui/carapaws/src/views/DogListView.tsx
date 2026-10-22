@@ -5,14 +5,17 @@ import ExpandMoreRounded from '@mui/icons-material/ExpandMoreRounded';
 import AddRounded from '@mui/icons-material/AddRounded';
 import ChevronRightRounded from '@mui/icons-material/ChevronRightRounded';
 import { DogEntryDialog } from '../components/DogEntryDialog';
+import { QuickUpdateDialog } from '../components/QuickUpdateDialog';
 import { getDogListPage } from '../data/dogList';
 import { getLatestUpdatesByDog } from '../data/updates';
-import type { CareUpdate, Dog, Role, SitterRequest } from '../data/types';
+import type { CareUpdate, Dog, NewUpdate, Role, SitterRequest } from '../data/types';
 
-export function DogListView({ owners, browse, onBrowse, onMakeCurrent, dogs, updates, currentDogId, role, ownerId, incoming, onSelect, onAdd, onRespond }: { owners: OwnerContact[]; browse: { query: string; page: number }; onBrowse: (browse: { query: string; page: number }) => void; onMakeCurrent: (dogId: string) => void; dogs: Dog[]; updates: CareUpdate[]; currentDogId?: string; role: Role; ownerId: string; incoming: { request: SitterRequest; dog: Dog }[]; onSelect: (dogId: string) => void; onAdd: (dog: Dog) => void; onRespond: (requestId: string, decision: 'accepted' | 'declined') => void }) {
+export function DogListView({ owners, browse, onBrowse, onMakeCurrent, dogs, updates, currentDogId, role, ownerId, incoming, onSelect, onAdd, onRespond, onSend }: { owners: OwnerContact[]; browse: { query: string; page: number }; onBrowse: (browse: { query: string; page: number }) => void; onMakeCurrent: (dogId: string) => void; dogs: Dog[]; updates: CareUpdate[]; currentDogId?: string; role: Role; ownerId: string; incoming: { request: SitterRequest; dog: Dog }[]; onSelect: (dogId: string) => void; onAdd: (dog: Dog) => void; onRespond: (requestId: string, decision: 'accepted' | 'declined') => void; onSend: (update: NewUpdate) => Promise<void> }) {
   const resultsRef = useRef<HTMLHeadingElement>(null);
   const [adding, setAdding] = useState(false);
   const [addedName, setAddedName] = useState('');
+  const [quickUpdateDog, setQuickUpdateDog] = useState<Dog | null>(null);
+  const [updatedName, setUpdatedName] = useState('');
 
   function addDog(dog: Dog) {
     onAdd(dog);
@@ -42,6 +45,7 @@ export function DogListView({ owners, browse, onBrowse, onMakeCurrent, dogs, upd
     <TextField label="Search by dog or owner name" type="search" value={browse.query} onChange={(event) => onBrowse({ query: event.target.value, page: 1 })} fullWidth />
     {browse.query && <Button onClick={() => onBrowse({ query: '', page: 1 })} sx={{ alignSelf: 'flex-start', minHeight: 48 }}>Clear search</Button>}
     {addedName && <Alert severity="success" onClose={() => setAddedName('')}>{addedName} has been added to your demo dogs.</Alert>}
+    {role === 'sitter' && updatedName && <Alert severity="success" onClose={() => setUpdatedName('')}>Update for {updatedName} added to the demo chat.</Alert>}
     {role === 'sitter' && <Accordion defaultExpanded={false}>
       <AccordionSummary expandIcon={<ExpandMoreRounded />} aria-controls="sitter-requests-content" id="sitter-requests-heading">
         <Typography component="span" variant="h6">Dog sitting requests ({incoming.length})</Typography>
@@ -66,6 +70,12 @@ export function DogListView({ owners, browse, onBrowse, onMakeCurrent, dogs, upd
             <ListItemText primary={dog.name} secondary={latest ? latest.text || `${latest.type} photo update` : 'No updates yet'} slotProps={{ secondary: { noWrap: true } }} sx={{ minWidth: 0 }} />
             <ChevronRightRounded color="action" />
           </ListItemButton>
+          {role === 'sitter' && <Button
+            variant="outlined"
+            aria-label={`Quick update for ${dog.name}`}
+            onClick={() => { setUpdatedName(''); setQuickUpdateDog(dog); }}
+            sx={{ flexShrink: 0, minHeight: 48, mr: 0.5 }}
+          >Update</Button>}
           {role === 'owner' && <Chip
             label={dog.id === currentDogId ? 'Current' : 'Make current'}
             color={dog.id === currentDogId ? 'primary' : 'default'}
@@ -93,5 +103,6 @@ export function DogListView({ owners, browse, onBrowse, onMakeCurrent, dogs, upd
       <Button variant="outlined" disabled={results.page === results.pageCount} onClick={() => changePage(results.page + 1)} sx={{ minHeight: 48 }}>Next</Button>
     </Stack>}
     {role === 'owner' && adding && <DogEntryDialog ownerId={ownerId} onClose={() => setAdding(false)} onAdd={addDog} />}
+    {role === 'sitter' && quickUpdateDog && <QuickUpdateDialog key={quickUpdateDog.id} dog={quickUpdateDog} onSend={onSend} onClose={() => setQuickUpdateDog(null)} onSent={() => { setUpdatedName(quickUpdateDog.name); setQuickUpdateDog(null); }} />}
   </Stack>;
 }
